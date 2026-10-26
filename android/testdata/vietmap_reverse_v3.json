@@ -1,0 +1,36 @@
+[
+ {
+  "lat": 10.8009,
+  "lng": 106.6789,
+  "ref_id": "vm:ADDRESS:MM03541B0B53520C091C56044C041A0C0C0E571F5B4E04510D7F57104B878EE35E45735F8389E3580837104057",
+  "distance": 0.0001582000050322936,
+  "address": "Phường 9,Quận Phú Nhuận,Thành Phố Hồ Chí Minh",
+  "name": "429/23 Nguyễn Kiệm",
+  "display": "429/23 Nguyễn Kiệm Phường 9,Quận Phú Nhuận,Thành Phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 987148,
+    "name": "9",
+    "prefix": "Phường",
+    "full_name": "Phường 9"
+   },
+   {
+    "type": 1,
+    "id": 4108,
+    "name": "Phú Nhuận",
+    "prefix": "Quận",
+    "full_name": "Quận Phú Nhuận"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành Phố",
+    "full_name": "Thành Phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": []
+ }
+]

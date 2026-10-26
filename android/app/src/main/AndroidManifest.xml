@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Các quyền (INTERNET, vị trí, Bluetooth, dịch vụ chạy nền) khai báo ở module platform và được gộp vào đây khi build. -->
+
+    <application
+        android:name=".MotoNavApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="MotoNav"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        <!-- singleTop: bấm thông báo dẫn đường thì quay lại màn đang mở chứ không mở thêm bản mới.
+             adjustResize: cần có thì Compose mới nhận được kích thước bàn phím (danh sách gợi ý không bị che).
+             configChanges: xoay máy hay đổi giao diện sáng/tối thì KHÔNG tạo lại Activity (Compose tự vẽ lại theo kích
+             thước mới). Tạo lại giữa lúc đang hỏi quyền sẽ làm mất bước "xin quyền xong thì đi tiếp". -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Nhận địa điểm chia sẻ từ Google Maps (nút Chia sẻ) và các liên kết geo: -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="geo" />
+            </intent-filter>
+        </activity>
+        <!-- Chia sẻ bản ghi chuyến đi (filesDir/rides) sang app khác mà không phải mở quyền đọc bộ nhớ. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.rides"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/ride_paths" />
+        </provider>
+    </application>
+
+</manifest>

@@ -1,0 +1,17 @@
+{
+ "display": "Đại Học Công Nghiệp Đường Nguyễn Văn Bảo, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+ "name": "Đại Học Công Nghiệp Đường Nguyễn Văn Bảo",
+ "hs_num": "12",
+ "street": "Nguyễn Văn Bảo",
+ "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+ "city_id": 12,
+ "city": "Thành phố Hồ Chí Minh",
+ "district_id": 0,
+ "district": "",
+ "ward_id": 24076,
+ "ward": "Phường Hạnh Thông",
+ "lat": 10.822452158000033,
+ "lng": 106.68819101800005,
+ "partner_code": null,
+ "place_detail": null
+}

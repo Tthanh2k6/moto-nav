@@ -1,0 +1,251 @@
+[
+ {
+  "ref_id": "auto:RAlSCTMtfAgZXgBUCksFUBgGFVtSG1ZOU1NIU18HBB1RWlRUAgAFVVEHAAoWJdPZn1gUdBsoDTMU9cNDCgtUAkgCXwZcDgRUCVUFBU1UAwIaUgtUCWtVWUYGFlk",
+  "distance": 4.031053471966897,
+  "address": "Phường Tân Sơn Hòa, Thành phố Hồ Chí Minh",
+  "name": "Cửu A.K Quán",
+  "display": "Cửu A.K Quán, Phường Tân Sơn Hòa, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 25868,
+    "name": "Tân Sơn Hòa",
+    "prefix": "Phường",
+    "full_name": "Phường Tân Sơn Hòa"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1005"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwNpUHRTc25wBgNVbydUAScWYlgKQkZ-RhZFaQ1ZA1QbC1RSDQAZXwtSAh0EBQJXFlNRAEwaBAhdA1MEUwlVCAZSB19zUg8RUAkW",
+  "distance": 9.682059778536305,
+  "address": "Phường Dĩ An, Thành phố Hồ Chí Minh",
+  "name": "Shop K & Q",
+  "display": "Shop K & Q, Phường Dĩ An, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 16908,
+    "name": "Dĩ An",
+    "prefix": "Phường",
+    "full_name": "Phường Dĩ An"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "3004",
+   "3004-4"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAhOVQUDCk9SVhgAGFNVG1YaCFFIC1IABB1TDVdQB1cHVVoHVAIWLRIzR-6VWxVODSkEW0J0UF8QQBIOXQFVFgFWBVACA1tZBAIbSAVTBx4FDAZYawMNRQcWCg",
+  "distance": 8.896228970496791,
+  "address": "Phường Tân Hưng, Thành phố Hồ Chí Minh",
+  "name": "K Quán - Kem Yaourt",
+  "display": "K Quán - Kem Yaourt, Phường Tân Hưng, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 19980,
+    "name": "Tân Hưng",
+    "prefix": "Phường",
+    "full_name": "Phường Tân Hưng"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1001"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAhkEhxRU0FBU1MIW1UAQVZHCmEQ8cdbRntDaQ1ZA1QbC1NSAAUWVwJUHBsBDA1YawMNRQcWCg",
+  "distance": 3.8453392705427314,
+  "address": "Phường Tân Sơn Nhất, Thành phố Hồ Chí Minh",
+  "name": "Quán K&Q",
+  "display": "Quán K&Q, Phường Tân Sơn Nhất, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 26124,
+    "name": "Tân Sơn Nhất",
+    "prefix": "Phường",
+    "full_name": "Phường Tân Sơn Nhất"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1005"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAhOBAsEBhoGVhgHGVVQG1ZIAQNICwUFXx1RXFRXUAJRVQVQBFcWJVMEVw1i9oANSkIqEDMNAABSCV0EVh5dAQRTAlQACFJSAxwaVgNXBB8DDnMCQREEDVk",
+  "distance": 7.966149872454724,
+  "address": "Phường Lái Thiêu, Thành phố Hồ Chí Minh",
+  "name": "Cafe Võng K&Q 107",
+  "display": "Cafe Võng K&Q 107, Phường Lái Thiêu, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 12300,
+    "name": "Lái Thiêu",
+    "prefix": "Phường",
+    "full_name": "Phường Lái Thiêu"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1001",
+   "1001-1"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAgeMAIuZXh4cHsreSMnfDFuCntFYxP2x15eAwdSHFMBBFdaDAUbVApXBBsPBAVVA1VQA1EfAQBQAlEEUAsjWVoRV18O",
+  "distance": 8.894286415076005,
+  "address": "Phường Tân Hưng, Thành phố Hồ Chí Minh",
+  "name": "K Quán",
+  "display": "K Quán, Phường Tân Hưng, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 19980,
+    "name": "Tân Hưng",
+    "prefix": "Phường",
+    "full_name": "Phường Tân Hưng"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1005"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAhkEhxRQR9ST0cbTwAGDxBbCgNVEi0VN0WmmVhC09-lUE4gXFMNNdPZtVkPDgRTA1VSA1MfBAFXCVcFUB5TCwdRBlAHCCUDWUFIXQk",
+  "distance": 11.485987409631637,
+  "address": "Phường Bình Phú, Thành phố Hồ Chí Minh",
+  "name": "30 K Quán Ốc-Bia Sệt",
+  "display": "30 K Quán Ốc-Bia Sệt, Phường Bình Phú, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 9228,
+    "name": "Bình Phú",
+    "prefix": "Phường",
+    "full_name": "Phường Bình Phú"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAlSCTMtfAgbXwZSUx9QVxgATlJTG1YeVQdIU1QDAB1SW1RRBlMCBVsEUAQWLRQzEmdBXFYGDU9BeKSd0Iv-UUb270BJGGULXAwVZ4LZpBJupZJCYkX3nw5YHFJPAVcUBgdVBV0EVgZLDgJRC1MAClgkVF5eAwlZ",
+  "distance": 8.42077748664838,
+  "address": "Phường Bình Thới, Thành phố Hồ Chí Minh",
+  "name": "K&Q Juice - Nước Ép, Sinh Tố Cà Phê",
+  "display": "K&Q Juice - Nước Ép, Sinh Tố Cà Phê, Phường Bình Thới, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 8716,
+    "name": "Bình Thới",
+    "prefix": "Phường",
+    "full_name": "Phường Bình Thới"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "1001",
+   "1001-1"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ }
+]

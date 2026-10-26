@@ -1,0 +1,12 @@
+.env
+*.apk
+.gradle/
+.kotlin/
+**/build/
+**/local.properties
+.idea/
+*.iml
+__pycache__/
+
+# PlatformIO build output and downloaded libraries
+.pio/

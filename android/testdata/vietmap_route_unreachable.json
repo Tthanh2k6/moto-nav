@@ -1,0 +1,6 @@
+{
+ "license": "vietmap",
+ "code": "ERROR_UNKNOWN",
+ "paths": [],
+ "messages": "Point 1 is out of bounds: 8, 112, the bounds are: 102.147222,112.219631,8.452657,23.370086"
+}

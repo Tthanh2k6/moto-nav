@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>moto-nav simulator</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; min-height: 100vh; background: #0e0f11; color: #c9ccd1;
+    font: 13px/1.5 system-ui, "Segoe UI", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  main { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; }
+  .bezel { padding: 14px; border-radius: 14px; background: #1a1c1f; box-shadow: 0 0 0 1px #2a2d32, 0 18px 40px #0008; }
+  canvas { display: block; image-rendering: pixelated; border-radius: 3px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+  button, select {
+    font: inherit; color: inherit; background: #1a1c1f; border: 1px solid #2f3338;
+    border-radius: 7px; padding: 5px 11px; cursor: pointer;
+  }
+  button:hover, select:hover { border-color: #4a4f57; }
+  input[type=range] { width: 300px; accent-color: #3b9bff; }
+  label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  input[type=checkbox] { accent-color: #3b9bff; }
+  #stats { margin: 0; color: #7d828a; font: 12px/1.7 ui-monospace, Consolas, monospace; text-align: center; }
+  #missing { max-width: 460px; text-align: center; }
+  a { color: #3b9bff; }
+  code { color: #e6e8eb; }
+</style>
+</head>
+<body>
+<main>
+  <div class="bezel"><canvas id="screen"></canvas></div>
+  <div class="controls">
+    <button id="play">Pause</button>
+    <select id="rate" title="Simulation speed">
+      <option value="1">1×</option><option value="4" selected>4×</option><option value="16">16×</option>
+    </select>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <select id="source" title="Which service computed the route">
+      <option value="osm">Route: OpenStreetMap</option>
+      <option value="vietmap">Route: Vietmap</option>
+    </select>
+    <select id="res" title="Panel resolution">
+      <option value="320x240">2.8" · 320×240</option>
+      <option value="480x320">3.5" · 480×320</option>
+    </select>
+    <select id="theme" title="Theme">
+      <option value="night">Night</option><option value="day">Day</option>
+    </select>
+    <label title="Fill in data OpenStreetMap does not have, so the whole layout can be judged">
+      <input id="sample" type="checkbox" checked> Sample data
+    </label>
+  </div>
+  <pre id="stats"></pre>
+</main>
+
+<script>
+  // ?route=vietmap nạp data/route_vietmap.js, mặc định nạp data/route.js (OpenStreetMap)
+  const ROUTE_SOURCE = new URLSearchParams(location.search).get("route") === "vietmap" ? "vietmap" : "osm";
+  document.write(`<script src="data/${ROUTE_SOURCE === "vietmap" ? "route_vietmap" : "route"}.js"><\/script>`);
+</script>
+<script>
+"use strict";
+
+const THEMES = {
+  night: {
+    bg: "#000000", panel: "#000000", line: "#1f2226", overlay: "rgba(0,0,0,0.78)",
+    roadMinor: "#2d3137", roadMajor: "#4b515a",
+    routeDone: "#1f3a5c", route: "#3b9bff", arrow: "#ffffff",
+    text: "#ffffff", dim: "#8d9299", vehicle: "#ffffff", warn: "#ff453a",
+  },
+  day: {
+    bg: "#f3f2ee", panel: "#ffffff", line: "#d5d6d8", overlay: "rgba(255,255,255,0.86)",
+    roadMinor: "#c3c6cb", roadMajor: "#9a9fa8",
+    routeDone: "#a9c3ea", route: "#0b5bd3", arrow: "#ffffff",
+    text: "#0c0d0f", dim: "#5b6068", vehicle: "#0c0d0f", warn: "#d70015",
+  },
+};
+
+// Tầm nhìn phía trước xe (mét): lúc chạy bình thường và lúc sát chỗ rẽ.
+const AHEAD_CRUISE = 300;
+const AHEAD_JUNCTION = 85;
+// Bắt đầu phóng to khi còn ZOOM_START mét tới chỗ rẽ, phóng to hết cỡ ở ZOOM_FULL mét.
+const ZOOM_START = 260;
+const ZOOM_FULL = 110;
+// Chỉ báo trước đèn giao thông / camera trong khoảng này (mét).
+const ALERT_RANGE = 500;
+
+const FONT = 'system-ui, "Segoe UI", sans-serif';
+const $ = (id) => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smoothstep = (t) => t * t * (3 - 2 * t);
+
+if (!window.NAV_DATA) {
+  document.querySelector("main").innerHTML =
+    '<p id="missing">No route data for this source yet. Run <code>python fetch_route.py --from LAT,LON --to LAT,LON' +
+    (ROUTE_SOURCE === "vietmap" ? " --source vietmap --out data/route_vietmap.js" : "") +
+    '</code> in this folder, then reload. <a href="?">Back to the default route</a></p>';
+  throw new Error("NAV_DATA missing");
+}
+
+// ---------- Chuẩn bị dữ liệu: đổi lat/lon sang mét quanh điểm xuất phát ----------
+
+const DATA = window.NAV_DATA;
+const [LAT0, LON0] = DATA.route[0];
+const KX = 111320 * Math.cos(LAT0 * Math.PI / 180);
+const KY = 110540;
+const toXY = ([lat, lon]) => [(lon - LON0) * KX, (lat - LAT0) * KY];
+
+const route = DATA.route.map(toXY);
+const cum = [0];
+for (let i = 1; i < route.length; i++) {
+  cum.push(cum[i - 1] + Math.hypot(route[i][0] - route[i - 1][0], route[i][1] - route[i - 1][1]));
+}
+const TOTAL = cum[cum.length - 1];
+const turns = DATA.maneuvers.map((m) => ({ ...m, s: m.s ?? cum[m.i] }));
+
+function densify(pts, step) {
+  const out = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+    const n = Math.max(1, Math.floor(Math.hypot(x1 - x0, y1 - y0) / step));
+    for (let k = 1; k <= n; k++) out.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n]);
+  }
+  return out;
+}
+
+// Lưới ô vuông để hỏi nhanh "điểm này cách tuyến bao xa".
+const CELL = 30;
+const routeGrid = new Map();
+for (const p of densify(route, 6)) {
+  const key = Math.floor(p[0] / CELL) + "," + Math.floor(p[1] / CELL);
+  if (!routeGrid.has(key)) routeGrid.set(key, []);
+  routeGrid.get(key).push(p);
+}
+function distToRoute(x, y) {
+  const cx = Math.floor(x / CELL), cy = Math.floor(y / CELL);
+  let best = Infinity;
+  for (let gx = cx - 1; gx <= cx + 1; gx++) {
+    for (let gy = cy - 1; gy <= cy + 1; gy++) {
+      for (const [px, py] of routeGrid.get(gx + "," + gy) || []) {
+        best = Math.min(best, Math.hypot(px - x, py - y));
+      }
+    }
+  }
+  return best;
+}
+
+const roads = DATA.roads.map((r) => {
+  const pts = r.p.map(toXY);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, near = Infinity;
+  for (const [x, y] of pts) {
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  }
+  for (const [x, y] of densify(pts, 6)) near = Math.min(near, distToRoute(x, y));
+  // touches = con đường này chạm vào tuyến, tức là một nhánh rẽ ra từ đường mình đang đi
+  return { c: r.c, pts, minX, minY, maxX, maxY, touches: near < 8 };
+});
+
+function pointAt(s) {
+  s = clamp(s, 0, TOTAL);
+  let lo = 0, hi = cum.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (cum[mid] <= s) lo = mid; else hi = mid;
+  }
+  const t = (s - cum[lo]) / ((cum[hi] - cum[lo]) || 1);
+  return [lerp(route[lo][0], route[hi][0], t), lerp(route[lo][1], route[hi][1], t)];
+}
+
+// Đoạn tuyến từ s0 tới s1 (mét) dưới dạng danh sách điểm.
+function routeSlice(s0, s1) {
+  s0 = clamp(s0, 0, TOTAL); s1 = clamp(s1, 0, TOTAL);
+  const out = [pointAt(s0)];
+  for (let i = 0; i < cum.length; i++) if (cum[i] > s0 && cum[i] < s1) out.push(route[i]);
+  out.push(pointAt(s1));
+  return out;
+}
+
+function bearingAt(s) {
+  const [x0, y0] = pointAt(s - 4), [x1, y1] = pointAt(s + 12);
+  return Math.atan2(x1 - x0, y1 - y0);
+}
+
+// ---------- Cảnh báo: đèn giao thông, camera, giới hạn tốc độ, làn đường ----------
+
+// Dữ liệu thật lấy từ OpenStreetMap. Ở Việt Nam nguồn này gần như không có camera,
+// giới hạn tốc độ hay làn đường, nên "Sample data" bịa thêm cho đủ để xem bố cục.
+const REAL_POIS = DATA.pois || [];
+const REAL_LIMITS = DATA.limits || [[0, 0]];
+const SAMPLE_POIS = [0.3, 0.63].map((f) => ({ k: "camera", s: Math.round(TOTAL * f), sample: true }));
+const SAMPLE_LIMIT = 50;
+
+function activePois() {
+  const list = state.sample ? REAL_POIS.concat(SAMPLE_POIS) : REAL_POIS;
+  return list.slice().sort((a, b) => a.s - b.s);
+}
+function limitAt(s) {
+  let value = 0;
+  for (const [from, v] of REAL_LIMITS) if (from <= s) value = v;
+  return value || (state.sample ? SAMPLE_LIMIT : 0);
+}
+// Làn đường trước chỗ rẽ: danh sách [hướng, có phải làn nên đi không].
+function lanesFor(turn, ahead) {
+  // chỉ bịa làn cho chỗ rẽ sang đường lớn sau một đoạn chạy dài, không bịa trong hẻm
+  const leg = ahead + prevTurnDist(state.s);
+  if (!state.sample || ahead > 220 || leg < 300 || !turn.street || turn.street.startsWith("Hẻm")) return null;
+  if (turn.type === "right" || turn.type === "slight_right") return [["straight", false], ["straight", false], [turn.type, true]];
+  if (turn.type === "left" || turn.type === "slight_left") return [[turn.type, true], ["straight", false], ["straight", false]];
+  return null;
+}
+
+// ---------- Trạng thái mô phỏng ----------
+
+const params = new URLSearchParams(location.search);
+const state = {
+  s: Number(params.get("s")) || 0,     // quãng đường đã đi dọc tuyến (m)
+  speed: 0,                            // m/s
+  heading: 0,
+  zoom: 0,                             // 0 = bình thường, 1 = phóng to giao lộ
+  playing: params.get("paused") !== "1",
+  rate: 4,
+  clock: Date.now(),
+  w: 320, h: 240,
+  theme: "night",
+  sample: params.get("sample") !== "0",
+};
+if (params.get("res") === "480") { state.w = 480; state.h = 320; $("res").value = "480x320"; }
+if (params.get("theme") === "day") { state.theme = "day"; $("theme").value = "day"; }
+$("sample").checked = state.sample;
+
+function nextTurn(s) {
+  return turns.find((t) => t.s > s + 0.5) || turns[turns.length - 1];
+}
+function prevTurnDist(s) {
+  let last = 0;
+  for (const t of turns) if (t.s <= s + 0.5) last = t.s;
+  return s - last;
+}
+function zoomTarget(s) {
+  const ahead = nextTurn(s).s - s;
+  const approaching = smoothstep(clamp((ZOOM_START - ahead) / (ZOOM_START - ZOOM_FULL), 0, 1));
+  // vừa rẽ xong thì giữ phóng to thêm một đoạn rồi mới thu nhỏ lại
+  const leaving = 1 - smoothstep(clamp((prevTurnDist(s) - 20) / 50, 0, 1));
+  return Math.max(approaching, s > turns[0].s ? leaving : 0);
+}
+function targetSpeed(s) {
+  const ahead = nextTurn(s).s - s;
+  // chậm lại khi gần chỗ rẽ, tăng tốc dần sau khi rẽ
+  return Math.min(42, 12 + ahead * 0.3, 12 + prevTurnDist(s) * 0.45) / 3.6;
+}
+
+function snap() {
+  state.heading = bearingAt(state.s);
+  state.zoom = zoomTarget(state.s);
+  state.speed = state.s >= TOTAL ? 0 : targetSpeed(state.s);
+}
+
+function step(dt) {
+  if (state.s >= TOTAL) { state.speed = 0; return; }
+  state.speed += (targetSpeed(state.s) - state.speed) * (1 - Math.exp(-dt / 1.2));
+  state.s = Math.min(TOTAL, state.s + state.speed * dt);
+  state.clock += dt * 1000;
+
+  let diff = bearingAt(state.s) - state.heading;
+  diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+  state.heading += diff * (1 - Math.exp(-dt / 0.35));
+  state.zoom += (zoomTarget(state.s) - state.zoom) * (1 - Math.exp(-dt / 0.7));
+}
+
+// ---------- Hình vẽ nhỏ ----------
+
+const canvas = $("screen");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = state.w;
+  canvas.height = state.h;
+  const px = state.w === 320 ? 2 : 1.5;   // phóng to để dễ nhìn trên màn máy tính
+  canvas.style.width = state.w * px + "px";
+  canvas.style.height = state.h * px + "px";
+}
+
+function turnIcon(type, cx, cy, size, color, exit) {
+  const s = size / 2;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = ctx.fillStyle = color;
+  ctx.lineWidth = size * 0.15;
+  ctx.lineCap = ctx.lineJoin = "round";
+
+  const head = (x, y, ang) => {
+    const h = size * 0.2, dx = Math.sin(ang), dy = -Math.cos(ang);
+    ctx.beginPath();
+    ctx.moveTo(x + dx * h, y + dy * h);
+    ctx.lineTo(x - dx * h * 0.35 - dy * h, y - dy * h * 0.35 + dx * h);
+    ctx.lineTo(x - dx * h * 0.35 + dy * h, y - dy * h * 0.35 - dx * h);
+    ctx.closePath();
+    ctx.fill();
+  };
+
+  if (type === "arrive") {
+    ctx.beginPath(); ctx.arc(0, 0, s * 0.7, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, s * 0.28, 0, Math.PI * 2); ctx.fill();
+  } else if (type === "uturn") {
+    ctx.beginPath();
+    ctx.moveTo(s * 0.45, s * 0.8);
+    ctx.lineTo(s * 0.45, -s * 0.25);
+    ctx.arc(0, -s * 0.25, s * 0.45, 0, Math.PI, true);
+    ctx.lineTo(-s * 0.45, s * 0.3);
+    ctx.stroke();
+    head(-s * 0.45, s * 0.3, Math.PI);
+  } else if (type === "roundabout") {
+    ctx.beginPath(); ctx.arc(0, -s * 0.2, s * 0.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, s * 0.3); ctx.lineTo(0, s * 0.9); ctx.stroke();
+    ctx.font = `700 ${Math.round(s * 0.55)}px ${FONT}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(String(exit || 1), 0, -s * 0.18);
+  } else {
+    // "straight" và mọi kiểu lạ đều rơi về góc 0 (mũi tên thẳng)
+    const deg = { slight_left: -45, left: -90, sharp_left: -135, slight_right: 45, right: 90, sharp_right: 135 }[type] || 0;
+    const ang = deg * Math.PI / 180;
+    const leg = s * 0.9, stem = s * 0.9;
+    const ex = Math.sin(ang) * leg, ey = -Math.cos(ang) * leg;
+    const elbowX = -ex / 2, elbowY = -(Math.min(0, ey) + stem) / 2;
+    ctx.beginPath();
+    ctx.moveTo(elbowX, elbowY + stem);
+    ctx.lineTo(elbowX, elbowY);
+    ctx.lineTo(elbowX + ex, elbowY + ey);
+    ctx.stroke();
+    head(elbowX + ex, elbowY + ey, ang);
+  }
+  ctx.restore();
+}
+
+function signalIcon(cx, cy, size) {
+  const w = size * 0.46;
+  ctx.fillStyle = "#16181b"; ctx.strokeStyle = "#c9cdd3"; ctx.lineWidth = Math.max(1, size * 0.07);
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - size / 2, w, size, w * 0.3); ctx.fill(); ctx.stroke();
+  ["#ff453a", "#ffd60a", "#30d158"].forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(cx, cy + (i - 1) * size * 0.29, size * 0.115, 0, Math.PI * 2); ctx.fill();
+  });
+}
+
+function cameraIcon(cx, cy, size) {
+  const w = size * 0.95, h = size * 0.62;
+  ctx.fillStyle = "#3b9bff";
+  ctx.beginPath(); ctx.roundRect(cx - w / 2, cy - h / 2 + size * 0.06, w, h, size * 0.12); ctx.fill();
+  ctx.fillRect(cx - w * 0.2, cy - h / 2 - size * 0.06, w * 0.4, size * 0.14);
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(cx, cy + size * 0.06, size * 0.19, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#0b2a4a";
+  ctx.beginPath(); ctx.arc(cx, cy + size * 0.06, size * 0.09, 0, Math.PI * 2); ctx.fill();
+}
+
+function limitSign(cx, cy, r, value) {
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#e5261f"; ctx.lineWidth = r * 0.24;
+  ctx.beginPath(); ctx.arc(cx, cy, r * 0.87, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = "#0c0d0f";
+  ctx.font = `700 ${Math.round(r * (value >= 100 ? 0.72 : 0.92))}px ${FONT}`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(String(value), cx, cy + r * 0.05);
+}
+
+function fmtDistance(m) {
+  if (m >= 1000) return [(m / 1000).toFixed(1), "km"];
+  if (m >= 100) return [String(Math.round(m / 10) * 10), "m"];
+  return [String(Math.max(0, Math.round(m / 5) * 5)), "m"];
+}
+
+function fitText(text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  while (text && ctx.measureText(text + "…").width > maxWidth) text = text.slice(0, -1);
+  return text.trimEnd() + "…";
+}
+
+// Số to kèm đơn vị nhỏ, canh theo `align` quanh toạ độ x.
+function numberWithUnit(num, unit, x, baseline, numPx, unitPx, align, T, numColor) {
+  const numFont = `italic 700 ${Math.round(numPx)}px ${FONT}`;
+  const unitFont = `500 ${Math.round(unitPx)}px ${FONT}`;
+  ctx.font = numFont;
+  const nw = ctx.measureText(num).width;
+  ctx.font = unitFont;
+  const uw = unit ? ctx.measureText(" " + unit).width : 0;
+  const start = align === "left" ? x : align === "right" ? x - nw - uw : x - (nw + uw) / 2;
+  ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  ctx.font = numFont; ctx.fillStyle = numColor || T.text;
+  ctx.fillText(num, start, baseline);
+  if (unit) { ctx.font = unitFont; ctx.fillStyle = T.dim; ctx.fillText(" " + unit, start + nw, baseline); }
+  return nw + uw;
+}
+
+const hhmm = (ms) => {
+  const d = new Date(ms);
+  return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+};
+
+// ---------- Các vùng trên màn hình ----------
+
+let drawnRoads = 0, drawnPoints = 0;
+
+function drawMap(x, y, w, h, T, u) {
+  const vx = x + w / 2, vy = y + h * 0.72;
+  const scale = (h * 0.72 - 8 * u) / lerp(AHEAD_CRUISE, AHEAD_JUNCTION, state.zoom);   // pixel / mét
+  const [px, py] = pointAt(state.s);
+  const cos = Math.cos(state.heading), sin = Math.sin(state.heading);
+  // xoay bản đồ để hướng đang đi luôn chỉ lên trên
+  const toScreen = ([wx, wy]) => {
+    const dx = wx - px, dy = wy - py;
+    return [vx + (dx * cos - dy * sin) * scale, vy - (dx * sin + dy * cos) * scale];
+  };
+  const trace = (pts) => {
+    ctx.beginPath();
+    pts.forEach((p, i) => { const [sx, sy] = toScreen(p); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); });
+  };
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = T.bg; ctx.fillRect(x, y, w, h);
+  ctx.lineCap = ctx.lineJoin = "round";
+
+  const reach = Math.hypot(w / 2, h) / scale;   // bán kính (mét) cần vẽ quanh xe
+  const z = state.zoom;
+  drawnRoads = drawnPoints = 0;
+  // đường nhỏ vẽ trước để đường lớn đè lên trên
+  for (let cls = 3; cls >= 0; cls--) {
+    // Lược bớt: đường lớn luôn hiện; đường nhỏ chỉ hiện nếu là nhánh rẽ ra từ tuyến,
+    // còn hẻm và các đường nhỏ khác chỉ hiện dần khi phóng to giao lộ.
+    const width = lerp([4, 3, 2, 1.5][cls], [8, 6.5, 5, 3.5][cls], z) * u;
+    ctx.strokeStyle = cls <= 1 ? T.roadMajor : T.roadMinor;
+    ctx.lineWidth = width;
+    for (const r of roads) {
+      if (r.c !== cls) continue;
+      if (r.maxX < px - reach || r.minX > px + reach || r.maxY < py - reach || r.minY > py + reach) continue;
+      const alpha = cls <= 1 || (cls === 2 && r.touches) ? 1 : z;
+      if (alpha < 0.08) continue;
+      ctx.globalAlpha = alpha;
+      trace(r.pts); ctx.stroke();
+      drawnRoads++; drawnPoints += r.pts.length;
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  const routeW = lerp(5, 9, z) * u;
+  ctx.lineWidth = routeW;
+  ctx.strokeStyle = T.routeDone;
+  trace(routeSlice(state.s - reach, state.s)); ctx.stroke();
+  ctx.strokeStyle = T.route;
+  trace(routeSlice(state.s, state.s + reach * 1.6)); ctx.stroke();
+
+  // mũi tên trắng vắt qua chỗ rẽ sắp tới
+  const turn = nextTurn(state.s);
+  const ahead = turn.s - state.s;
+  if (turn.type !== "arrive" && ahead < reach * 1.5) {
+    const span = lerp(40, 22, z);
+    const pts = routeSlice(Math.max(state.s, turn.s - span), turn.s + span);
+    ctx.strokeStyle = ctx.fillStyle = T.arrow;
+    ctx.lineWidth = routeW * 0.42;
+    trace(pts); ctx.stroke();
+    const [ax, ay] = toScreen(pts[pts.length - 1]);
+    const [bx, by] = toScreen(pointAt(turn.s + span - 3));
+    const ang = Math.atan2(ay - by, ax - bx), hs = routeW * 0.95;
+    ctx.beginPath();
+    ctx.moveTo(ax + Math.cos(ang) * hs, ay + Math.sin(ang) * hs);
+    ctx.lineTo(ax + Math.cos(ang + 2.4) * hs, ay + Math.sin(ang + 2.4) * hs);
+    ctx.lineTo(ax + Math.cos(ang - 2.4) * hs, ay + Math.sin(ang - 2.4) * hs);
+    ctx.closePath(); ctx.fill();
+  } else if (turn.type === "arrive") {
+    const [dx, dy] = toScreen(pointAt(TOTAL));
+    ctx.fillStyle = T.route;
+    ctx.beginPath(); ctx.arc(dx, dy, routeW * 0.95, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = T.arrow;
+    ctx.beginPath(); ctx.arc(dx, dy, routeW * 0.4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // đèn giao thông / camera nằm trên tuyến, vẽ lệch sang phải cho khỏi che đường
+  const pois = activePois();
+  for (const poi of pois) {
+    if (Math.abs(poi.s - state.s) > reach * 1.6) continue;
+    const [sx, sy] = toScreen(pointAt(poi.s));
+    const size = lerp(11, 15, z) * u;
+    (poi.k === "signal" ? signalIcon : cameraIcon)(sx + routeW * 0.5 + size * 0.7, sy, size);
+  }
+
+  // xe
+  const k = 1.15 * u;
+  ctx.beginPath();
+  ctx.moveTo(vx, vy - 10 * k); ctx.lineTo(vx + 7 * k, vy + 8 * k);
+  ctx.lineTo(vx, vy + 4 * k); ctx.lineTo(vx - 7 * k, vy + 8 * k);
+  ctx.closePath();
+  ctx.fillStyle = T.vehicle; ctx.fill();
+  ctx.strokeStyle = T.bg; ctx.lineWidth = 1.5 * u; ctx.stroke();
+
+  // cột cảnh báo ở mép phải: tối đa hai điểm sắp tới, gần nhất nằm trên
+  const upcoming = pois.filter((p) => p.s > state.s && p.s - state.s <= ALERT_RANGE).slice(0, 2);
+  upcoming.forEach((poi, i) => {
+    const bw = 34 * u, bh = 40 * u;
+    const bx = x + w - bw - 5 * u, by = y + 5 * u + i * (bh + 4 * u);
+    ctx.fillStyle = T.overlay;
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 5 * u); ctx.fill();
+    (poi.k === "signal" ? signalIcon : cameraIcon)(bx + bw / 2, by + 14 * u, 19 * u);
+    const [num, unit] = fmtDistance(poi.s - state.s);
+    ctx.font = `italic 700 ${Math.round(10.5 * u)}px ${FONT}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = T.text;
+    ctx.fillText(`${num} ${unit}`, bx + bw / 2, by + bh - 5 * u);
+  });
+
+  // dải làn đường ở góc dưới trái bản đồ (tránh che xe), chỉ hiện khi có dữ liệu
+  const lanes = lanesFor(turn, ahead);
+  if (lanes) {
+    const lw = 22 * u, lh = 26 * u;
+    const total = lanes.length * lw + 6 * u;
+    const lx = x + 6 * u, ly = y + h - lh - 5 * u;
+    ctx.fillStyle = T.panel; ctx.strokeStyle = T.line; ctx.lineWidth = Math.max(1, u);
+    ctx.beginPath(); ctx.roundRect(lx, ly, total, lh, 5 * u); ctx.fill(); ctx.stroke();
+    lanes.forEach(([dir, active], i) => {
+      ctx.globalAlpha = active ? 1 : 0.38;
+      turnIcon(dir, lx + 3 * u + lw * (i + 0.5), ly + lh / 2, 19 * u, T.text);
+    });
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+}
+
+// Cột trái: chỗ rẽ sắp tới ở trên, tốc độ và biển giới hạn ở dưới.
+// Kích thước chữ theo k; vị trí dọc tính trên thang 188 rồi giãn ra cho vừa chiều cao h.
+function drawSide(x, y, w, h, T, k) {
+  const at = (n) => y + n * h / 188;
+  ctx.fillStyle = T.panel; ctx.fillRect(x, y, w, h);
+  const turn = nextTurn(state.s);
+  const arrived = state.s >= TOTAL - 1;
+  turnIcon(turn.type, x + w / 2, at(33), 50 * k, T.text, turn.exit);
+  const [num, unit] = arrived ? ["0", "m"] : fmtDistance(turn.s - state.s);
+  numberWithUnit(num, unit, x + w / 2, at(88), 27 * k, 13 * k, "center", T);
+
+  ctx.fillStyle = T.line;
+  ctx.fillRect(x + 10 * k, Math.round(at(101)), w - 20 * k, Math.max(1, Math.round(k)));
+
+  const kmh = Math.round(state.speed * 3.6);
+  const limit = limitAt(state.s);
+  const over = limit && kmh > limit + 2;
+  numberWithUnit(String(kmh), "", x + 8 * k, at(152), 40 * k, 0, "left", T, over ? T.warn : T.text);
+  ctx.font = `500 ${Math.round(11 * k)}px ${FONT}`;
+  ctx.fillStyle = T.dim; ctx.textAlign = "left";
+  ctx.fillText("km/h", x + 10 * k, at(152) + 18 * k);
+  if (limit) limitSign(x + w - 22 * k, at(152) - 14 * k, 17 * k, limit);
+}
+
+// Đáy: tên đường sắp rẽ vào ở bên trái, quãng đường còn lại và giờ đến ở bên phải.
+function drawBottom(y, w, h, T, u) {
+  ctx.fillStyle = T.panel; ctx.fillRect(0, y, w, h);
+  const base = y + h * 0.68;
+  const remaining = TOTAL - state.s;
+  const eta = hhmm(state.clock + remaining / (28 / 3.6) * 1000);
+
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "right";
+  ctx.font = `700 ${Math.round(13 * u)}px ${FONT}`;
+  ctx.fillStyle = T.text;
+  ctx.fillText(eta, w - 8 * u, base);
+  let right = w - 8 * u - ctx.measureText(eta).width;
+  ctx.font = `500 ${Math.round(10 * u)}px ${FONT}`;
+  ctx.fillStyle = T.dim;
+  ctx.fillText("ETA ", right, base);
+  right -= ctx.measureText("ETA ").width + 10 * u;
+  const [num, unit] = fmtDistance(remaining);
+  right -= numberWithUnit(num, unit, right, base, 13 * u, 10 * u, "right", T) + 10 * u;
+
+  const turn = nextTurn(state.s);
+  const name = turn.type === "arrive" ? "Destination" : turn.street || "Unnamed road";
+  ctx.font = `italic 700 ${Math.round(15 * u)}px ${FONT}`;
+  ctx.textAlign = "left";
+  ctx.fillStyle = turn.street || turn.type === "arrive" ? T.text : T.dim;
+  ctx.fillText(fitText(name, right - 8 * u), 8 * u, base);
+}
+
+function render() {
+  const T = THEMES[state.theme], u = state.w / 320;
+  const botH = Math.round(30 * u), sideW = Math.round(104 * u);
+  const midH = state.h - botH;
+  drawMap(sideW, 0, state.w - sideW, midH, T, u);
+  drawSide(0, 0, sideW, midH, T, Math.min(u, midH / 188));
+  drawBottom(midH, state.w, botH, T, u);
+  const hair = Math.max(1, Math.round(u));
+  ctx.fillStyle = T.line;
+  ctx.fillRect(0, midH, state.w, hair);
+  ctx.fillRect(sideW, 0, hair, midH);
+
+  // Ước lượng dữ liệu phải gửi qua Bluetooth cho khung nhìn này:
+  // mỗi đoạn đường 2 byte đầu + mỗi điểm 4 byte (x, y kiểu int16, đơn vị mét).
+  const bytes = drawnRoads * 2 + drawnPoints * 4;
+  $("stats").textContent =
+    `${(state.s / 1000).toFixed(2)} / ${(TOTAL / 1000).toFixed(2)} km   zoom ${state.zoom.toFixed(2)}   ` +
+    `roads in view ${drawnRoads} (${drawnPoints} pts) ≈ ${(bytes / 1024).toFixed(1)} KB over BLE\n` +
+    (state.sample
+      ? "sample data ON: speed limit, cameras and lane arrows are made up; traffic lights are real"
+      : "sample data OFF: showing only what OpenStreetMap has for this route");
+}
+
+// ---------- Điều khiển ----------
+
+$("play").onclick = () => {
+  if (state.s >= TOTAL) { state.s = 0; snap(); }
+  state.playing = !state.playing;
+};
+$("rate").onchange = (e) => { state.rate = Number(e.target.value); };
+$("scrub").oninput = (e) => { state.s = TOTAL * e.target.value / 1000; snap(); };
+$("res").onchange = (e) => { [state.w, state.h] = e.target.value.split("x").map(Number); resize(); };
+$("theme").onchange = (e) => { state.theme = e.target.value; };
+$("sample").onchange = (e) => { state.sample = e.target.checked; };
+$("source").value = ROUTE_SOURCE;
+$("source").onchange = (e) => { location.search = e.target.value === "vietmap" ? "?route=vietmap" : ""; };
+addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); $("play").click(); } });
+
+let lastFrame = performance.now();
+function frame(now) {
+  const dt = Math.min(0.1, (now - lastFrame) / 1000) * state.rate;
+  lastFrame = now;
+  if (state.playing) {
+    // chia nhỏ bước để chạy nhanh 16× vẫn mượt
+    for (let left = dt; left > 0; left -= 0.05) step(Math.min(0.05, left));
+    $("scrub").value = Math.round(state.s / TOTAL * 1000);
+  }
+  $("play").textContent = state.playing ? "Pause" : "Play";
+  render();
+  requestAnimationFrame(frame);
+}
+
+resize();
+snap();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

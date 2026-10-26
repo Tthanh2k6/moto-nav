@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Mạng: tìm địa điểm, tính đường, tải đường phụ. Thiếu INTERNET thì lần gọi đầu tiên trên máy thật sẽ hỏng. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Quyền cấp sẵn lúc cài; nhờ nó kiểu dịch vụ connectedDevice luôn hợp lệ dù chưa cấp quyền Bluetooth. -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
+    <!-- Định vị: luôn xin cả hai cùng lúc. KHÔNG khai ACCESS_BACKGROUND_LOCATION (dịch vụ chạy nền kiểu location là đủ). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Bluetooth: quyền kiểu cũ cho Android 11 trở xuống, quyền kiểu mới (xin lúc chạy) cho Android 12+. -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+
+    <application>
+        <!-- Vỏ giữ app sống khi đang đi thật. Kiểu thực tế được tính lại mỗi lần startForeground (xem NavService). -->
+        <service
+            android:name="dev.motonav.platform.NavService"
+            android:exported="false"
+            android:foregroundServiceType="location|connectedDevice" />
+        <!-- Chiếu màn hình điện thoại lên màn ESP32 (PROTOCOL.md mục 9, thử nghiệm). -->
+        <service
+            android:name="dev.motonav.platform.MirrorService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+    </application>
+
+</manifest>

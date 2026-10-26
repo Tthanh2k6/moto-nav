@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chỉ thư mục bản ghi chuyến đi được chia sẻ qua FileProvider; mọi thứ khác trong filesDir vẫn kín. -->
+<paths>
+    <files-path name="rides" path="rides/" />
+</paths>

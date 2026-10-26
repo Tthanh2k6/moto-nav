@@ -1,0 +1,304 @@
+[
+ {
+  "ref_id": "auto:RAkPYywrD3MeIwsjBxR2dAcmFVMkBlUWZUKjgoeO-14CGPLy096UWkMq1ImgBRIh8ZlaUhUtSgoI19mqQRAxWqWVCFhFaF6DifUVe4LZphJuDvHPEmBdW11D6fKnhoOWrF4CEihSE0mEg7MMEjLxsA1Cd9OXxV1ZCRwEGw1RH1FTA1IfBgBVAlYGUgtUCABMBFwDBFdTBwQeVgJSAhkPc1QPXgdaB1AWf1cQS4eO415FbvLhXER30tnBWg",
+  "distance": 0.02589674705920732,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Trường Đại Học Công Nghiệp Thành Phố Hồ Chí Minh Đường Nguyễn Văn Bảo",
+  "display": "Trường Đại Học Công Nghiệp Thành Phố Hồ Chí Minh Đường Nguyễn Văn Bảo, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "13002"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwFoJ3NWc2gMdwYlbCMjAFoW9aCEiMdcRniEg7sBEif2hw0FFXxKDluDiapEFfHz69KAjf9DVhArVRNMh4vgVhY09udbEyGDj5FCXQlTAgMMBwdXGFBQA1odAQBVAVUOVwBTFgBaClUMAlNTDQIdVgJXCWtVWUYGFlNTDSxKREmEieNbRmahu1hCcIWPkAw",
+  "distance": 0.1597793077603592,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Đại Học Công Nghiệp Đường Nguyễn Văn Bảo",
+  "display": "Đại Học Công Nghiệp Đường Nguyễn Văn Bảo, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "13002"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwsfUHFRAmwCdwdWG1snclMW9aCEiMdcRniEg7sBEif2hw0FFXxKDluDiapEFWELzNnQVUJ9WdHfmwsVLnMoGPLy9NTUiP4MUhJuDtPYjQ14VFtDewuinAwWCgFVHF4EVANSCgFXBlQFA1NQBgkcVgRMBB4FAgRXHFFZBlIdAQZedAdZFVVeCwdZcQzUidxCeVNDRmQL8Yda",
+  "distance": 6.228819784383129,
+  "address": "Phường Tây Thạnh, Thành phố Hồ Chí Minh",
+  "name": "Đại Học Công Nghiệp Thực Phẩm HCM Đường Chế Lan Viên",
+  "display": "Đại Học Công Nghiệp Thực Phẩm HCM Đường Chế Lan Viên, Phường Tây Thạnh, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 9740,
+    "name": "Tây Thạnh",
+    "prefix": "Phường",
+    "full_name": "Phường Tây Thạnh"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "13002"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwNuVAJXcxwCBQMgFVondVcW9aCEiMdcRniEg7sBEif2hw0FFXxKDluDiapEFWELzNnQVUJ9WdHfmwsVoqCjiNfZrwpSEzehl1wNLdPZgQ1g9pcNDTMU9d8WCgFVHF4FVQVQAQdRBlQFA1NUDQkcVgRMBB4HAQZXFFBXBlIdAQZedAdZFVVeDQJNA1YOZ6DAWxJmh4nREnn3l1tDfBeiiw",
+  "distance": 6.290742356889754,
+  "address": "Phường Tân Sơn Nhì, Thành phố Hồ Chí Minh",
+  "name": "Đại Học Công Nghiệp Thực Phẩm Đường Tân Kỳ Tân Quý",
+  "display": "Đại Học Công Nghiệp Thực Phẩm Đường Tân Kỳ Tân Quý, Phường Tân Sơn Nhì, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 9484,
+    "name": "Tân Sơn Nhì",
+    "prefix": "Phường",
+    "full_name": "Phường Tân Sơn Nhì"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "13002"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwNsUQdTdBwBDXBRHiRWAFEW9aCEiMdcRniEg7sBEif2hw0FFXxKDluDiapEFWELzNnQVUJ9WdHfmwsVoqCjiNfZrwpSEy-hnxJ5FNPZv0NTFWGCl8cPDVkcAR5dAlAEVgdUAANSAlQFAFhTBQQDUABaBRwAAAdaHVJRBlYWd1EJQQMOVwRVA3qhmERhQYLZuFxKRmaDiIha",
+  "distance": 6.708615685896476,
+  "address": "Phường Tây Thạnh, Thành phố Hồ Chí Minh",
+  "name": "Đại Học Công Nghiệp Thực Phẩm Đường Lê Trọng Tấn",
+  "display": "Đại Học Công Nghiệp Thực Phẩm Đường Lê Trọng Tấn, Phường Tây Thạnh, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 9740,
+    "name": "Tây Thạnh",
+    "prefix": "Phường",
+    "full_name": "Phường Tây Thạnh"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "13002"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPdi02Z2tyNn0rfHkOfEFNHFtTBBNLQUIRAQsNFwsxSvDS09-oXQRC8aLM3JMLEmXVjrgADSGiggxKEX4CWg_U3bcVGH6DifcVcAuhmBJgD1wKEm7VjqANSkJQDVkcAR5dAFQHVABcCgJaAlMCCFJSAxwbXgVXBxgGDQRSH1NacANBQlVeCQ",
+  "distance": 0.08517317179430609,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 1",
+  "display": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 1, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPdi02Z2tyNn0rfHkOfEFNHVEXXAlZWAUNA14HUgsxSvDS09-oXQRC8aLM3JMLEmXVjrgADSGiggxKEX4CWg_U3bcVGH6DifcVcAuhmBJgD1wKEm7VjqANSkJTDVkcAR5dAFQFUAhUDAZRClAGCFJSAxwbXgVUABkFBgZQFFpacANBQlVeCQ",
+  "distance": 0.0918374492848788,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 2",
+  "display": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 2, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPdi02Z2tyNn0rfHkOfEFNHgENBw1EVUYCSFFACQsxSvDS09-oXQRC8aLM3JMLEmXVjrgADSGiggxKEX4CWg_U3bcVGH6DifcVcAuhmBJgD1wKEm7VjqANSkJVDVkcAR5dAFcMUAZTCwRTClAHCFJSAxwbXgVUCxUMDQJaH1VacANBQlVeCQ",
+  "distance": 0.10118867422736134,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 4",
+  "display": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 4, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPdi02Z2tyNn0rfHkOfEFNHFBZBApFAEEfRApRHAsxSvDS09-oXQRC8aLM3JMLEmXVjrgADSGiggxKEX4CWg_U3bcVGH6DifcVcAuhmBJgD1wKEm7VjqANSkJSDVkcAR5dAFcMVwRQAQZbAFUCCFJSAxwbXgVVAxkMAwdWGVpacANBQlVeCQ",
+  "distance": 0.10394278324142815,
+  "address": "Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "name": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 3",
+  "display": "Trường Đại Học Công Nghiệp Hồ Chí Minh Cổng 3, Phường Hạnh Thông, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 24076,
+    "name": "Hạnh Thông",
+    "prefix": "Phường",
+    "full_name": "Phường Hạnh Thông"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ },
+ {
+  "ref_id": "auto:RAkPYywrDwR-JX9afWRxdGJSaFJRASsW9aCEiMdcRniEg7sBEif2hw0FFXxKDluDiapEFXiClvkIFqa994CEiftbARA22Y3zElEGCFhTBRwVUwJRBh0ABQVTHVJRA1kcAQZLBFIGVABcAAZSAlQFA1tZc1NBFVdZCemk84WClv8PUUJ-0Iv0ElMG",
+  "distance": 5.783475089306551,
+  "address": "Phường An Hội Tây, Thành phố Hồ Chí Minh",
+  "name": "Đại Học Công Nghiệp Mới Đường Số 53",
+  "display": "Đại Học Công Nghiệp Mới Đường Số 53, Phường An Hội Tây, Thành phố Hồ Chí Minh",
+  "boundaries": [
+   {
+    "type": 2,
+    "id": 25100,
+    "name": "An Hội Tây",
+    "prefix": "Phường",
+    "full_name": "Phường An Hội Tây"
+   },
+   {
+    "type": 0,
+    "id": 12,
+    "name": "Hồ Chí Minh",
+    "prefix": "Thành phố",
+    "full_name": "Thành phố Hồ Chí Minh"
+   }
+  ],
+  "categories": [
+   "3004"
+  ],
+  "entry_points": [],
+  "data_old": null,
+  "data_new": null,
+  "is_match_address": null,
+  "partner_code": null
+ }
+]
