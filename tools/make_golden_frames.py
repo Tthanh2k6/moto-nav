@@ -116,6 +116,6 @@ assert crc16(b"123456789") == 0x29B1
 assert out[-1]["hex"] == "A53000003909", out[-1]["hex"]
 assert len(bytes.fromhex(out[14]["hex"])) == 486, len(bytes.fromhex(out[14]["hex"]))
 assert len(long_name.encode("utf-8")) <= 120
-dest = Path("D:/Project/moto-nav/android/testdata/golden_frames.json")
+dest = Path(__file__).resolve().parents[1] / "android" / "testdata" / "golden_frames.json"
 dest.write_text(json.dumps({"crc_check": {"ascii": "123456789", "crc": "29B1"}, "frames": out}, ensure_ascii=False, indent=1), encoding="utf-8")
 print(len(out), "frames ->", dest, "| longest text bytes:", len(long_name.encode("utf-8")), "| max frame:", max(len(o["hex"]) // 2 for o in out))

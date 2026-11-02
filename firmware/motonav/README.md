@@ -11,10 +11,11 @@ Màn hình dẫn đường: nhận dữ liệu từ app Android qua Bluetooth LE
 
 ## Build và nạp
 
+Cần PlatformIO CLI (`pio`). Thay `COM3` bằng cổng của bo:
+
 ```
-set PLATFORMIO_CORE_DIR=D:\dev\platformio\core
-D:\dev\platformio\penv\Scripts\pio.exe run -e cyd -t upload --upload-port COM3
-D:\dev\platformio\penv\Scripts\pio.exe device monitor -p COM3 -b 115200
+pio run -e cyd -t upload --upload-port COM3
+pio device monitor -p COM3 -b 115200
 ```
 
 Nhật ký mỗi vài giây in một dòng `[stat]`: màn đang hiện, trạng thái Bluetooth, số hình/giây, thời gian vẽ, bộ nhớ trống,
@@ -22,8 +23,10 @@ số byte nhận và số khung lỗi.
 
 ## Kiểm trên máy tính
 
+Cần `g++` hỗ trợ C++17 (trên Windows: MinGW-w64) trong `PATH`:
+
 ```
-set PATH=D:\dev\mingw\mingw64\bin;%PATH%
+mkdir build_host
 g++ -std=gnu++17 -O2 -ffp-contract=off -fwrapv -Ilib/motonav_core test_host/host_test.cpp lib/motonav_core/*.cpp -o build_host/host_test.exe
 build_host\host_test.exe golden ..\..\android\testdata\firmware_golden
 ```
