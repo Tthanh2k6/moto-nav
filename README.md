@@ -1,63 +1,52 @@
-# MotoNav — Cross-Platform BLE Turn-by-Turn Navigation Engine & ESP32 Handlebar HUD
+# MotoNav
 
-<div align="center">
-  <p align="center">
-    <img src="https://img.shields.io/badge/Android-Kotlin_%2B_Compose-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin" />
-    <img src="https://img.shields.io/badge/Core_Engine-C%2B%2B17_Bit--Exact-00599C?style=flat-square&logo=cplusplus&logoColor=white" alt="C++17" />
-    <img src="https://img.shields.io/badge/Firmware-ESP32_(320x240_HUD)-E7352C?style=flat-square&logo=espressif&logoColor=white" alt="ESP32" />
-    <img src="https://img.shields.io/badge/Protocol-Binary_BLE_GATT-0082FC?style=flat-square&logo=bluetooth&logoColor=white" alt="BLE" />
-  </p>
-</div>
+A turn-by-turn navigation display for a motorcycle handlebar. An Android app plans the route, snaps GPS fixes to the road, and sends small binary frames over Bluetooth Low Energy to an ESP32-2432S028R board with a 320×240 screen. The phone draws the same frames in a preview, using a Kotlin copy of the board's renderer, so you can work on the display without the hardware.
 
----
+![Handlebar display design](design/MotoNav-Display-redesign.svg)
 
-## 🧭 Overview
+This is a personal learning project.
 
-**MotoNav** is a compact motorcycle handlebar navigation HUD system. An Android companion app computes routes, snaps real-time GPS coordinates to street/alley geometry, and streams compact binary frames over **Bluetooth Low Energy (BLE)** to an **ESP32-2432S028R (`320×240` TFT)** handlebar display.
-
-### Key Architectural Highlight: Bit-Exact Virtual HUD
-The in-app virtual display on Android renders **exclusively from the exact binary BLE frames** sent over the air, using the **exact same 16-color indexed pixel/bitmap rasterizer (`hud`)** that runs on the ESP32 firmware. What you see on the phone's preview canvas is pixel-for-pixel identical to the physical 320×240 hardware screen.
+## How the pieces fit
 
 ```mermaid
 flowchart LR
-    GPS["GPS / Route Sim"] --> Nav["Route Snapping &\nOff-Route Detector (nav)"]
-    Nav --> Planner["Viewport & Delta\nPlanner (planner)"]
-    Planner --> Proto["Binary Frame Encoder\n(protocol)"]
-    Proto --> Queue["Priority BLE Queue\n(session)"]
-    Queue -->|"BLE GATT"| ESP32["ESP32 Handlebar Display\n(320x240 TFT Firmware)"]
-    Queue -->|"Loopback Bytes"| VHUD["In-App Bit-Exact\nVirtual HUD (display + hud)"]
+    GPS["GPS or route simulator"] --> Nav["nav: snap to road, off-route check"]
+    Nav --> Planner["planner: viewport and changes since last frame"]
+    Planner --> Proto["protocol: binary frames"]
+    Proto --> Queue["session: priority BLE queue"]
+    Queue -->|BLE GATT| ESP32["ESP32 board, C++17 renderer"]
+    Queue -->|same bytes| Preview["phone preview, Kotlin renderer"]
 ```
 
----
+The renderer exists twice: in Kotlin (`android/hud`, `android/display`) and in C++17 (`firmware/motonav/lib/motonav_core`). A host test compares them. The Kotlin side dumps 16 golden scenes (`android/testdata/firmware_golden/*.bin`: cruise, approach, lanes, off-route, link lost, rerouting and others, plus a video stream), and the C++ host build (`firmware/motonav/test_host`) renders the same input and diffs the pixels. Those checks run on a PC; this README makes no claim about results on the physical board.
 
-## 📂 Repository Architecture
+## Repository
 
-| Directory / Module | Description |
-| :--- | :--- |
-| [`android/`](android/) | 11-module Kotlin + Jetpack Compose project (`model`, `protocol`, `nav`, `planner`, `sources`, `hud`, `display`, `session`, `e2e`, `platform`, `app`). The first 9 modules are pure JVM Kotlin and run full E2E frame-to-PNG tests on desktop without an emulator. |
-| [`firmware/`](firmware/) | ESP32-2432S028R firmware & shared C++17 binary protocol/rendering core (`motonav_core`). |
-| [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | Binary wire protocol specification between the Android phone and ESP32 HUD. |
-| [`design/`](design/) | Vector UI specifications (`MotoNav-Display-redesign.svg`, `MotoNav-App-redesign.svg`). |
-| [`sim/`](sim/) | Browser-based interactive HUD simulator (`320×240` & `480×320`, day/night themes, OpenStreetMap/Vietmap route fetcher). |
-| [`tools/`](tools/) | Protocol frame generators and bitmap font bakers (`Barlow` bitmap glyph tools). |
+| Path | What is there |
+| --- | --- |
+| `android/` | 11 Gradle modules: `model`, `protocol`, `nav`, `planner`, `sources`, `hud`, `display`, `e2e`, `session`, `platform`, `app` (Jetpack Compose). The first nine are plain JVM Kotlin, so the end-to-end frame tests run on a desktop without an emulator. |
+| `firmware/` | ESP32 firmware (PlatformIO), the shared C++17 core and the host test build. `firmware/bringup` is a screen colour check for a new board. |
+| `docs/PROTOCOL.md` | The wire protocol between phone and board. |
+| `sim/` | Browser simulator of the display (320×240 and 480×320, day and night), with a script that fetches a route from OpenStreetMap. |
+| `tools/` | Golden frame generator and the bitmap font baker (Barlow). |
+| `design/` | SVG designs for the display and the app. |
 
----
+## Build and test
 
-## 🚀 Build & Test
-
-### 1. Android App & Pure-JVM Test Suite
 ```powershell
 cd android
-.\gradlew.bat test                      # Run unit + E2E pixel-snapshot tests on desktop JVM
-.\gradlew.bat :app:assembleDebug        # Build debug APK
+.\gradlew.bat test                 # unit and end-to-end frame tests on the JVM
+.\gradlew.bat :app:assembleDebug   # debug APK
 ```
 
-### 2. Interactive Web Simulator (`sim/`)
-Open `sim/index.html` directly in any browser, or fetch a custom route from OpenStreetMap:
+Simulator: open `sim/index.html` in a browser. To load another route:
+
 ```powershell
 python sim/fetch_route.py --from 10.8221,106.6868 --to 10.8009,106.6789
 ```
 
----
+Firmware: see `firmware/motonav/README.md` (PlatformIO).
 
-**Author:** **Trung Thanh Tran** (*Trần Trung Thành*) · [GitHub `@Tthanh2k6`](https://github.com/Tthanh2k6) · [Upwork Profile](https://www.upwork.com/freelancers/~01ee7c2348cb4b62fe)
+## Author
+
+Trung Thanh Tran, [GitHub](https://github.com/Tthanh2k6)
